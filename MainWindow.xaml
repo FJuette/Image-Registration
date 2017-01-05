@@ -1,0 +1,81 @@
+﻿<Window x:Class="WpfApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="1200" MinWidth="900" MinHeight="450">
+    <Grid>
+        <DockPanel>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File">
+                    
+                    <MenuItem Header="_Exit" Name="BtnExit" Click="BtnExit_OnClick">
+                        <!--<MenuItem.Icon>
+                            <Image Width="20" Height="20" Source="Content/CloseSolution_64x.png"></Image>
+                        </MenuItem.Icon>-->
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="_Image Operations">
+                    <MenuItem Header="_Overlay Images" Name="BtnOverlay" Click="BtnOverlay_OnClick">
+                    </MenuItem>
+                    <MenuItem Header="_Translation Registration" Name="BtnTranslation" Click="BtnTranslation_OnClick">
+                    </MenuItem>
+                    <MenuItem Header="_Rigid Registration" Name="BtnRigid" Click="BtnRigid_OnClick">
+                    </MenuItem>
+                    <MenuItem Header="_Affine Registration" Name="BtnAffine" Click="BtnAffine_OnClick">
+                    </MenuItem>
+                    <MenuItem Header="_Reset Markers" Name="BtnReset" Click="BtnReset_OnClick">
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+            <Grid ShowGridLines="False">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="50" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="33.3*" />
+                    <ColumnDefinition Width="33.3*" />
+                    <ColumnDefinition Width="33.3*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Row="1" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+                    <Border BorderThickness="1" BorderBrush="#FF000000" Margin="5">
+                        <Canvas Name="CanvasSrc" Background="Wheat" MouseRightButtonDown="CanvasSrc_OnMouseRightButtonDown">
+                            <Image Name="ImgSrc"
+                                       MouseRightButtonDown="ImgSrc_OnMouseRightButtonDown">
+                            </Image>
+                        </Canvas>
+                    </Border>
+                </Grid>
+                <Grid Grid.Row="1" Grid.Column="1" Width="380" Height="415" VerticalAlignment="Center" HorizontalAlignment="Center" >
+                    <Border BorderThickness="1" BorderBrush="#FF000000" Margin="5">
+                        <Image Name="ImgBoth" Width="368">
+                        </Image>
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="1" Grid.Column="2" Width="380" Height="415" VerticalAlignment="Center" HorizontalAlignment="Center" >
+                    <Border BorderThickness="1" BorderBrush="#FF000000" Margin="5">
+                        <Canvas Name="CanvasDst" Background="White">
+                            <Image Name="ImgDst" Width="368"
+                                       MouseRightButtonDown="ImgDst_OnMouseRightButtonDown">
+                            </Image>
+                        </Canvas>
+                    </Border>
+                </Grid>
+
+                <Label Content="" Grid.Row="2" Grid.Column="0" FontSize="11" Name="LabelSrc"></Label>
+                <Label Content="Both images" Grid.Row="2" Grid.Column="1" FontSize="11" HorizontalAlignment="Center"></Label>
+                <Label Content="" Grid.Row="2" Grid.Column="2" FontSize="11" Name="LabelDst"></Label>
+                <Button Content="Load src Image" Grid.Row="3" Grid.Column="0" Width="150" Height="30" HorizontalAlignment="Center" Margin="7" Name="BtnLoadSrc" Click="BtnLoadSrc_OnClick"></Button>
+                <Button Content="Load dst Image" Grid.Row="3" Grid.Column="2" Width="150" Height="30" HorizontalAlignment="Center" Margin="7" Name="BtnLoadDst" Click="BtnLoadDst_OnClick"></Button>
+                <Label Content="Information" Grid.Row="3" Grid.Column="1" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center" Name="InfoLabel"></Label>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</Window>
