@@ -251,6 +251,7 @@ namespace WpfApp
                 return;
             }
             InfoLabel.Content = "Translation Not implemented";
+            InfoLabel.Visibility = Visibility;
         }
 
         private void BtnRigid_OnClick(object sender, RoutedEventArgs e)
@@ -260,6 +261,7 @@ namespace WpfApp
                 return;
             }
             InfoLabel.Content = "Rigid Not implemented";
+            InfoLabel.Visibility = Visibility;
         }
 
         private void BtnAffine_OnClick(object sender, RoutedEventArgs e)
@@ -269,6 +271,7 @@ namespace WpfApp
                 return;
             }
             InfoLabel.Content = "Affine Not implemented";
+            InfoLabel.Visibility = Visibility;
         }
 
         private void BtnReset_OnClick(object sender, RoutedEventArgs e)
