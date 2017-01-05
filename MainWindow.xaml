@@ -26,6 +26,7 @@
                     </MenuItem>
                     <MenuItem Header="_Affine Registration" Name="BtnAffine" Click="BtnAffine_OnClick">
                     </MenuItem>
+                    <Separator />
                     <MenuItem Header="_Reset Markers" Name="BtnReset" Click="BtnReset_OnClick">
                     </MenuItem>
                 </MenuItem>
