@@ -50,7 +50,7 @@ namespace WpfApp
                     System.Threading.Thread.Sleep(10000);
                     Application.Current.Dispatcher.Invoke(() => { InfoLabel.Visibility = Visibility.Hidden; });
                 });
-                task.Start();
+                //task.Start();
             }
         }
 
@@ -121,7 +121,7 @@ namespace WpfApp
             return new BitmapImage(new Uri(openFileDialog.FileName));
         }
 
-        private void ImgDst_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void CanvasDst_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             Ellipse ellipse = new Ellipse
             {
@@ -141,7 +141,7 @@ namespace WpfApp
                 Y = (int)e.GetPosition(ImgDst).Y
             });
 
-            LabelDst.Content = GetImagePointString(_dstPoints);
+            InfoLabel.Content = GetImagePointString(_dstPoints);
         }
 
         private string GetImagePointString(List<ImagePoint> points)
@@ -279,8 +279,8 @@ namespace WpfApp
             _srcPoints.Clear();
             _dstPoints.Clear();
 
-            LabelSrc.Content = "";
-            LabelDst.Content = "";
+            InfoLabel.Content = "";
+            InfoLabel.Content = "";
 
             CanvasSrc.Children.RemoveRange(1, CanvasSrc.Children.Count - 1);
             CanvasDst.Children.RemoveRange(1, CanvasDst.Children.Count - 1);
@@ -307,12 +307,7 @@ namespace WpfApp
                 Y = (int)e.GetPosition(CanvasSrc).Y
             });
 
-            LabelSrc.Content = GetImagePointString(_srcPoints);
-        }
-
-        private void ImgSrc_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            //throw new NotImplementedException();
+            InfoLabel.Content = GetImagePointString(_srcPoints);
         }
     }
 }

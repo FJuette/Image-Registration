@@ -97,6 +97,15 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Example Data\Translation\Einfaches_Rechteck.bmp" />
+    <Resource Include="Example Data\Translation\Einfaches_Rechteck2.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Example Data\Affine\" />
+    <Folder Include="Example Data\Rigid\" />
+    <Folder Include="Example Data\SimpleElastix\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
