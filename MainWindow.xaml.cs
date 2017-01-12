@@ -19,6 +19,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Brushes = System.Windows.Media.Brushes;
 using Image = System.Drawing.Image;
+using Matrix = System.Drawing.Drawing2D.Matrix;
 using PixelFormat = System.Windows.Media.PixelFormat;
 using Rectangle = System.Drawing.Rectangle;
 
@@ -246,12 +247,16 @@ namespace WpfApp
 
         private void BtnTranslation_OnClick(object sender, RoutedEventArgs e)
         {
-            if (!CheckPreconditions(1))
+            if (CheckPreconditions(1))
             {
-                return;
+                Transformation transform = new Transformation();
+                var matrix = transform.GetTranslationsMatrix(new System.Windows.Point(_srcPoints[0].X, _srcPoints[0].Y),
+                    new System.Windows.Point(_dstPoints[0].X, _dstPoints[0].Y));
+
+                InfoLabel.Content = matrix.ToString();
             }
-            InfoLabel.Content = "Translation Not implemented";
-            InfoLabel.Visibility = Visibility;
+            //InfoLabel.Content = "Translation Not implemented";
+            //InfoLabel.Visibility = Visibility;
         }
 
         private void BtnRigid_OnClick(object sender, RoutedEventArgs e)
