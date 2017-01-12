@@ -8,7 +8,7 @@ namespace WpfApp
 {
     public class Transformation
     {
-        public int[] Matrix { get; set; }
+        public int[] Matrix { get; set; } 
         
     }
 }
