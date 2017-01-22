@@ -17,11 +17,13 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Controls;
 using System.Windows.Media;
+using itk.simple;
 using Brushes = System.Windows.Media.Brushes;
 using Image = System.Drawing.Image;
 using Matrix = System.Drawing.Drawing2D.Matrix;
 using PixelFormat = System.Windows.Media.PixelFormat;
 using Rectangle = System.Drawing.Rectangle;
+
 
 namespace WpfApp
 {
@@ -261,6 +263,24 @@ namespace WpfApp
 
         private void BtnRigid_OnClick(object sender, RoutedEventArgs e)
         {
+            SimpleElastix se = new SimpleElastix();
+
+            var fixImage = SimpleITK.ReadImage(@"G:\Temp\BrainProtonDensity.png");
+            itk.simple.Image fixResultImage = null;
+            //http://stackoverflow.com/questions/30118427/vector-of-8-bit-unsigned-integer-is-not-supported
+            for (uint i = 0; i < fixImage.GetNumberOfComponentsPerPixel(); i++)
+            {
+                var componentImage = SimpleITK.VectorIndexSelectionCast(fixImage, i, PixelIDValueEnum.sitkFloat32);
+                fixResultImage = SimpleITK.CannyEdgeDetection(componentImage);
+            }
+
+            
+            se.SetFixedImage(SimpleITK.Compose(fixResultImage));
+            se.SetMovingImage(SimpleITK.ReadImage(@"G:\Temp\BrainProtonDensityTranslatedR1013x17y.png"));
+            se.SetParameterMap(SimpleITK.GetDefaultParameterMap("rigid"));
+            se.Execute();
+            SimpleITK.WriteImage(se.GetResultImage(), @"G:\Temp\result.png");
+
             if (!CheckPreconditions(2))
             {
                 return;
