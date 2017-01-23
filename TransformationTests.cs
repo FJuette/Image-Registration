@@ -11,16 +11,19 @@ namespace WpfApp
         [Test]
         public void Translation()
         {
+            // Assert
             Transformation t = new Transformation();
-            var srcPoint = new Point(146, 93);
-            var dstPoint = new Point(208, 156);
+            var sourceVector = new MyVector(146, 93);
+            var destVector = new MyVector(208, 156);
 
-            var matrix = t.GetTranslationsMatrix(srcPoint, dstPoint);
-            matrix.Invert();
-            var result = Point.Multiply(dstPoint, matrix);
 
-            Assert.AreEqual(srcPoint.X, result.X, 1);
-            Assert.AreEqual(srcPoint.Y, result.Y, 1);
+            // Act
+            var matrix = t.GetTranslationsMatrix(sourceVector, destVector);
+            var inverse = t.InvertMatrix(matrix);
+            var resultVector = t.MultiplyMatrixWithVector(inverse, destVector);
+
+            Assert.AreEqual(sourceVector.X, resultVector.X);
+            Assert.AreEqual(sourceVector.Y, resultVector.Y);
         }
     }
 }

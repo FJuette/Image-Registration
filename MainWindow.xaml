@@ -10,14 +10,15 @@
         <DockPanel>
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_File">
+                    <MenuItem Header="_Load Source Image" Name="BtnLoadSource" Click="BtnLoadSrc_OnClick">
+                    </MenuItem>
+                    <MenuItem Header="_Load Target Image" Name="BtnLoadTarget" Click="BtnLoadDst_OnClick">
+                    </MenuItem>
+                    <Separator />
                     <MenuItem Header="_Exit" Name="BtnExit" Click="BtnExit_OnClick">
                         <!--<MenuItem.Icon>
                             <Image Width="20" Height="20" Source="Content/CloseSolution_64x.png"></Image>
                         </MenuItem.Icon>-->
-                    </MenuItem>
-                    <MenuItem Header="_Load Source Image" Name="BtnLoadSource" Click="BtnLoadSrc_OnClick">
-                    </MenuItem>
-                    <MenuItem Header="_Load Target Image" Name="BtnLoadTarget" Click="BtnLoadDst_OnClick">
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Image Operations">
@@ -76,13 +77,47 @@
                         </Image>
                     </TabItem>
                 </TabControl>
-                <Label Grid.Row="1" 
-                       Grid.Column="0" 
-                       FontSize="11" 
-                       HorizontalAlignment="Left" 
-                       VerticalAlignment="Top" 
-                       Name="InfoLabel">
-                </Label>
+                <Grid Grid.Row="1" 
+                      Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="200" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="200" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" 
+                           Grid.Column="0" 
+                           FontSize="11" 
+                           Height="100"
+                           Visibility="Visible"
+                           HorizontalAlignment="Left" 
+                           VerticalAlignment="Top" 
+                           Name="InfoLabel">
+                            1
+                        </Label>
+
+                    <Label Grid.Row="0" 
+                           Grid.Column="1" 
+                           Visibility="Visible"
+                           FontSize="11"
+                           HorizontalAlignment="Left" 
+                           VerticalAlignment="Top" 
+                           Name="InfoLabel2">
+                        2
+                    </Label>
+                    <Label Grid.Row="0" 
+                           Grid.Column="2" 
+                           Visibility="Visible"
+                           FontSize="11"
+                           HorizontalAlignment="Left" 
+                           VerticalAlignment="Top" 
+                           Name="InfoLabel3">
+                        3
+                    </Label>
+                </Grid>
+                
 
             </Grid>
         </DockPanel>

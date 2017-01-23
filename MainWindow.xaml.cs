@@ -150,7 +150,7 @@ namespace WpfApp
         private string GetImagePointString(List<ImagePoint> points)
         {
             var res = "(";
-            List<string> pointList = points.Select(imagePoint => "[" + imagePoint.X + ", " + imagePoint.Y + "]").ToList();
+            List<string> pointList = points.Select(imagePoint => imagePoint.ToString()).ToList();
             res += string.Join(", ", pointList);
             res += ")";
 
@@ -252,10 +252,17 @@ namespace WpfApp
             if (CheckPreconditions(1))
             {
                 Transformation transform = new Transformation();
-                var matrix = transform.GetTranslationsMatrix(new System.Windows.Point(_srcPoints[0].X, _srcPoints[0].Y),
-                    new System.Windows.Point(_dstPoints[0].X, _dstPoints[0].Y));
+                var sourceVector = new MyVector(_srcPoints[0].X, _srcPoints[0].Y);
+                var destVector = new MyVector(_dstPoints[0].X, _dstPoints[0].Y);
+                var matrix = transform.GetTranslationsMatrix(sourceVector, destVector);
 
-                InfoLabel.Content = matrix.ToString();
+                InfoLabel.Content = transform.MatrixToString(matrix);
+
+                var inverse = transform.InvertMatrix(matrix);
+                InfoLabel2.Content = transform.MatrixToString(inverse);
+
+                var vector = transform.MultiplyMatrixWithVector(inverse, destVector);
+                InfoLabel3.Content = vector.X + "\n" + vector.Y;
             }
             //InfoLabel.Content = "Translation Not implemented";
             //InfoLabel.Visibility = Visibility;
@@ -264,22 +271,12 @@ namespace WpfApp
         private void BtnRigid_OnClick(object sender, RoutedEventArgs e)
         {
             SimpleElastix se = new SimpleElastix();
-
-            var fixImage = SimpleITK.ReadImage(@"G:\Temp\BrainProtonDensity.png");
-            itk.simple.Image fixResultImage = null;
-            //http://stackoverflow.com/questions/30118427/vector-of-8-bit-unsigned-integer-is-not-supported
-            for (uint i = 0; i < fixImage.GetNumberOfComponentsPerPixel(); i++)
-            {
-                var componentImage = SimpleITK.VectorIndexSelectionCast(fixImage, i, PixelIDValueEnum.sitkFloat32);
-                fixResultImage = SimpleITK.CannyEdgeDetection(componentImage);
-            }
-
-            
-            se.SetFixedImage(SimpleITK.Compose(fixResultImage));
-            se.SetMovingImage(SimpleITK.ReadImage(@"G:\Temp\BrainProtonDensityTranslatedR1013x17y.png"));
+          
+            se.SetFixedImage(SimpleITK.ReadImage(@"F:\BrainProtonDensity.bmp"));
+            se.SetMovingImage(SimpleITK.ReadImage(@"F:\BrainProtonDensityTranslatedR1013x17y.bmp"));
             se.SetParameterMap(SimpleITK.GetDefaultParameterMap("rigid"));
             se.Execute();
-            SimpleITK.WriteImage(se.GetResultImage(), @"G:\Temp\result.png");
+            SimpleITK.WriteImage(se.GetResultImage(), @"F:\result.bmp");
 
             if (!CheckPreconditions(2))
             {
