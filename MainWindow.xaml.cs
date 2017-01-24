@@ -32,6 +32,7 @@ namespace WpfApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region Properties and Constructor
 
         private List<ImagePoint> _srcPoints = new List<ImagePoint>();
         private List<ImagePoint> _dstPoints = new List<ImagePoint>();
@@ -44,18 +45,244 @@ namespace WpfApp
             InfoLabel.IsVisibleChanged += InfoLabel_IsVisibleChanged;
         }
 
-        private void InfoLabel_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        #endregion
+
+        #region Image Actions (Translate, Rotate and Scale)
+
+        private void BtnTranslation_OnClick(object sender, RoutedEventArgs e)
         {
-            if (InfoLabel.IsVisible)
+            if (CheckPreconditions(1))
             {
-                Task task = new Task(() =>
-                {
-                    System.Threading.Thread.Sleep(10000);
-                    Application.Current.Dispatcher.Invoke(() => { InfoLabel.Visibility = Visibility.Hidden; });
-                });
-                //task.Start();
+                Transformation transform = new Transformation();
+
+                ImageOperations imageOps = new ImageOperations(BitmapImage2Bitmap(_srcImage));
+                //imageOps.SetTranslate(_dstPoints[0].X - _srcPoints[0].X, _dstPoints[0].Y - _srcPoints[0].Y);
+                imageOps.SetRotate(80);
+                var result = imageOps.ApplyTransform();
+                result.Save(@"G:\test.png");
+                return;
+
+                var sourceVector = new MyVector(_srcPoints[0].X, _srcPoints[0].Y);
+                var destVector = new MyVector(_dstPoints[0].X, _dstPoints[0].Y);
+                var matrix = transform.GetTranslationsMatrix(sourceVector, destVector);
+
+                InfoLabel.Content = transform.MatrixToString(matrix);
+
+                var inverse = transform.InvertMatrix(matrix);
+                InfoLabel2.Content = transform.MatrixToString(inverse);
+
+                var vector = transform.MultiplyMatrixWithVector(inverse, destVector);
+                InfoLabel3.Content = vector.X + "\n" + vector.Y;
+            }
+            //InfoLabel.Content = "Translation Not implemented";
+            //InfoLabel.Visibility = Visibility;
+        }
+
+        private void BtnRigid_OnClick(object sender, RoutedEventArgs e)
+        {
+            ImageOperations imageOps = new ImageOperations(BitmapImage2Bitmap(_dstImage));
+            imageOps.SetRotate(90); //TODO this must be dynamic -> How to mess similarity?
+            // Die Farbinsentität an 3 Punkten muss dem des Ausgangsbildes entsprechen - Klappt das?ö
+            var result = imageOps.ApplyTransform();
+            result.Save(@"G:\test.png");
+            BitmapImage img = new BitmapImage(new Uri(@"G:\test.png"));
+            ImgDst.Source = img;
+            _dstImage = img;
+            return;
+            if (!CheckPreconditions(2))
+            {
+                return;
+            }
+            InfoLabel.Content = "Rigid Not implemented";
+            InfoLabel.Visibility = Visibility;
+        }
+
+        private void BtnAffine_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (!CheckPreconditions(3))
+            {
+                return;
+            }
+            InfoLabel.Content = "Affine Not implemented";
+            InfoLabel.Visibility = Visibility;
+        }
+
+        private void SimpleElastixTest()
+        {
+            // Currently not working
+            SimpleElastix se = new SimpleElastix();
+
+            se.SetFixedImage(SimpleITK.ReadImage(@"F:\BrainProtonDensity.bmp"));
+            se.SetMovingImage(SimpleITK.ReadImage(@"F:\BrainProtonDensityTranslatedR1013x17y.bmp"));
+            se.SetParameterMap(SimpleITK.GetDefaultParameterMap("rigid"));
+            se.Execute();
+            SimpleITK.WriteImage(se.GetResultImage(), @"F:\result.bmp");
+        }
+
+        #endregion
+
+        #region Standard Button Actions
+        
+        private void BtnReset_OnClick(object sender, RoutedEventArgs e)
+        {
+            _srcPoints.Clear();
+            _dstPoints.Clear();
+
+            InfoLabel.Content = "";
+            InfoLabel.Content = "";
+
+            CanvasSrc.Children.RemoveRange(1, CanvasSrc.Children.Count - 1);
+            CanvasDst.Children.RemoveRange(1, CanvasDst.Children.Count - 1);
+        }
+
+        private void BtnOverlay_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (!CheckPreconditions(0))
+            {
+                return;
+            }
+
+            Bitmap source1 = BitmapImage2Bitmap(_srcImage); // your source images - assuming they're the same size
+            Bitmap source2 = BitmapImage2Bitmap(_dstImage);
+            var target = new Bitmap(source1.Width, source1.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb); // Format32bppArgb
+            var graphics = Graphics.FromImage(target);
+            graphics.CompositingMode = CompositingMode.SourceOver; // this is the default, but just to be clear
+
+            graphics.DrawImage(source1, 0, 0);
+
+            source2 = ChangeOpacity(source2, 0.5f);
+            graphics.DrawImage(source2, 0, 0); //TODO here I can set x and y position if the second image, i can use this for translation
+
+            target.Save(AppDomain.CurrentDomain.BaseDirectory + "merged.png", ImageFormat.Png);
+            BitmapImage myBitmap = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "merged.png"));
+            ImgBoth.Source = myBitmap;
+        }
+
+        private void CanvasSrc_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+            Ellipse ellipse = new Ellipse
+            {
+                Fill = Brushes.DarkRed,
+                Width = 7,
+                Height = 7,
+                StrokeThickness = 2
+            };
+
+            CanvasSrc.Children.Add(ellipse);
+
+            Canvas.SetLeft(ellipse, e.GetPosition(CanvasSrc).X);
+            Canvas.SetTop(ellipse, e.GetPosition(CanvasSrc).Y);
+            _srcPoints.Add(new ImagePoint
+            {
+                X = (int)e.GetPosition(CanvasSrc).X,
+                Y = (int)e.GetPosition(CanvasSrc).Y
+            });
+
+            InfoLabel.Content = GetImagePointString(_srcPoints);
+        }
+
+        private void CanvasDst_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Ellipse ellipse = new Ellipse
+            {
+                Fill = Brushes.DarkRed,
+                Width = 7,
+                Height = 7,
+                StrokeThickness = 2
+            };
+
+            CanvasDst.Children.Add(ellipse);
+
+            Canvas.SetLeft(ellipse, e.GetPosition(ImgDst).X);
+            Canvas.SetTop(ellipse, e.GetPosition(ImgDst).Y);
+            _dstPoints.Add(new ImagePoint
+            {
+                X = (int)e.GetPosition(ImgDst).X,
+                Y = (int)e.GetPosition(ImgDst).Y
+            });
+
+            InfoLabel.Content = GetImagePointString(_dstPoints);
+        }
+
+        private void BtnLoadSrc_OnClick(object sender, RoutedEventArgs e)
+        {
+            _srcImage = OpenImage();
+            //var image = ResizeImage(BitmapImage2Bitmap(_srcImage), (int) CanvasSrc.ActualWidth,
+            //    (int) CanvasSrc.ActualHeight);
+            ImgSrc.Source = _srcImage;
+            ImgSrc.Width = CanvasSrc.ActualWidth;
+            //ImageBrush brush = new ImageBrush();
+            //brush.ImageSource = _srcImage;
+            //CanvasSrc.Background = brush;
+        }
+
+        private void BtnLoadDst_OnClick(object sender, RoutedEventArgs e)
+        {
+            _dstImage = OpenImage();
+            ImgDst.Source = _dstImage;
+        }
+
+        private void BtnExit_OnClick(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        #endregion
+        
+        # region Helping Functions
+
+        private BitmapImage OpenImage()
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "All files (*.*)|*.*|Images (*.bmp)|*.bmp"
+            };
+            if (openFileDialog.ShowDialog() != true)
+                return null;
+            return new BitmapImage(new Uri(openFileDialog.FileName));
+        }
+
+        private Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
+        {
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+                enc.Save(outStream);
+                System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(outStream);
+
+                return new Bitmap(bitmap);
             }
         }
+
+        public Bitmap ChangeOpacity(System.Drawing.Image img, float opacityvalue)
+        {
+            Bitmap bmp = new Bitmap(img.Width, img.Height); // Determining Width and Height of Source Image
+            Graphics graphics = Graphics.FromImage(bmp);
+            ColorMatrix colormatrix = new ColorMatrix
+            {
+                Matrix33 = opacityvalue
+            };
+            ImageAttributes imgAttribute = new ImageAttributes();
+            imgAttribute.SetColorMatrix(colormatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+            graphics.DrawImage(img, new Rectangle(0, 0, bmp.Width, bmp.Height), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imgAttribute);
+            graphics.Dispose();   // Releasing all resource used by graphics 
+            return bmp;
+        }
+
+        private string GetImagePointString(List<ImagePoint> points)
+        {
+            var res = "(";
+            List<string> pointList = points.Select(imagePoint => imagePoint.ToString()).ToList();
+            res += string.Join(", ", pointList);
+            res += ")";
+
+            //var res = string.Join(",", points.Aggregate("(", (a, b) => a + "[" + b.X + ", " + b.Y + "]"));
+            //var res = points.Aggregate("(", (current, point) => current + ("[" + point.X + ", " + point.Y + "]"));
+            return res;
+        }
+
 
         /// <summary>
         /// Resize the image to the specified width and height.
@@ -89,134 +316,23 @@ namespace WpfApp
             return destImage;
         }
 
-
-        private void BtnExit_OnClick(object sender, RoutedEventArgs e)
+        #endregion
+        
+        #region Info Functions
+        
+        private void InfoLabel_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            Close();
-        }
-
-        private void BtnLoadSrc_OnClick(object sender, RoutedEventArgs e)
-        {
-            _srcImage = OpenImage();
-            //var image = ResizeImage(BitmapImage2Bitmap(_srcImage), (int) CanvasSrc.ActualWidth,
-            //    (int) CanvasSrc.ActualHeight);
-            ImgSrc.Source = _srcImage;
-            ImgSrc.Width = CanvasSrc.ActualWidth;
-            //ImageBrush brush = new ImageBrush();
-            //brush.ImageSource = _srcImage;
-            //CanvasSrc.Background = brush;
-        }
-
-        private void BtnLoadDst_OnClick(object sender, RoutedEventArgs e)
-        {
-            _dstImage = OpenImage();
-            ImgDst.Source = _dstImage;
-        }
-
-        private BitmapImage OpenImage()
-        {
-            var openFileDialog = new OpenFileDialog
+            if (InfoLabel.IsVisible)
             {
-                Filter = "Images (*.bmp)|*.bmp"
-            };
-            if (openFileDialog.ShowDialog() != true)
-                return null;
-            return new BitmapImage(new Uri(openFileDialog.FileName));
-        }
-
-        private void CanvasDst_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Ellipse ellipse = new Ellipse
-            {
-                Fill = Brushes.DarkRed,
-                Width = 7,
-                Height = 7,
-                StrokeThickness = 2
-            };
-
-            CanvasDst.Children.Add(ellipse);
-
-            Canvas.SetLeft(ellipse, e.GetPosition(ImgDst).X);
-            Canvas.SetTop(ellipse, e.GetPosition(ImgDst).Y);
-            _dstPoints.Add(new ImagePoint
-            {
-                X = (int)e.GetPosition(ImgDst).X,
-                Y = (int)e.GetPosition(ImgDst).Y
-            });
-
-            InfoLabel.Content = GetImagePointString(_dstPoints);
-        }
-
-        private string GetImagePointString(List<ImagePoint> points)
-        {
-            var res = "(";
-            List<string> pointList = points.Select(imagePoint => imagePoint.ToString()).ToList();
-            res += string.Join(", ", pointList);
-            res += ")";
-
-            //var res = string.Join(",", points.Aggregate("(", (a, b) => a + "[" + b.X + ", " + b.Y + "]"));
-            //var res = points.Aggregate("(", (current, point) => current + ("[" + point.X + ", " + point.Y + "]"));
-            return res;
-        }
-
-        private void BtnOverlay_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (!CheckPreconditions(0))
-            {
-                return;
-            }
-
-            Bitmap source1 = BitmapImage2Bitmap(_srcImage); // your source images - assuming they're the same size
-            Bitmap source2 = BitmapImage2Bitmap(_dstImage);
-            var target = new Bitmap(source1.Width, source1.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb); // Format32bppArgb
-            var graphics = Graphics.FromImage(target);
-            graphics.CompositingMode = CompositingMode.SourceOver; // this is the default, but just to be clear
-
-            graphics.DrawImage(source1, 0, 0);
-
-            source2 = ChangeOpacity(source2, 0.4f);
-            graphics.DrawImage(source2, 0, 0);
-
-            target.Save(AppDomain.CurrentDomain.BaseDirectory + "merged.png", ImageFormat.Png);
-            BitmapImage myBitmap = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "merged.png"));
-            ImgBoth.Source = myBitmap;
-        }
-
-        private Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
-        {
-            using (MemoryStream outStream = new MemoryStream())
-            {
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
-                enc.Save(outStream);
-                System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(outStream);
-
-                return new Bitmap(bitmap);
+                Task task = new Task(() =>
+                {
+                    System.Threading.Thread.Sleep(10000);
+                    Application.Current.Dispatcher.Invoke(() => { InfoLabel.Visibility = Visibility.Hidden; });
+                });
+                //task.Start();
             }
         }
-
-        public Bitmap ChangeOpacity(System.Drawing.Image img, float opacityvalue)
-        {
-            Bitmap bmp = new Bitmap(img.Width, img.Height); // Determining Width and Height of Source Image
-            Graphics graphics = Graphics.FromImage(bmp);
-            ColorMatrix colormatrix = new ColorMatrix
-            {
-                Matrix33 = opacityvalue
-            };
-            ImageAttributes imgAttribute = new ImageAttributes();
-            imgAttribute.SetColorMatrix(colormatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-            graphics.DrawImage(img, new Rectangle(0, 0, bmp.Width, bmp.Height), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imgAttribute);
-            graphics.Dispose();   // Releasing all resource used by graphics 
-            return bmp;
-        }
-
-        private void ShowErrorInLabel(string message)
-        {
-            InfoLabel.Content = message;
-            InfoLabel.Visibility = Visibility.Visible;
-            InfoLabel.Foreground = Brushes.Red;
-        }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -247,89 +363,13 @@ namespace WpfApp
             return true;
         }
 
-        private void BtnTranslation_OnClick(object sender, RoutedEventArgs e)
+        private void ShowErrorInLabel(string message)
         {
-            if (CheckPreconditions(1))
-            {
-                Transformation transform = new Transformation();
-                var sourceVector = new MyVector(_srcPoints[0].X, _srcPoints[0].Y);
-                var destVector = new MyVector(_dstPoints[0].X, _dstPoints[0].Y);
-                var matrix = transform.GetTranslationsMatrix(sourceVector, destVector);
-
-                InfoLabel.Content = transform.MatrixToString(matrix);
-
-                var inverse = transform.InvertMatrix(matrix);
-                InfoLabel2.Content = transform.MatrixToString(inverse);
-
-                var vector = transform.MultiplyMatrixWithVector(inverse, destVector);
-                InfoLabel3.Content = vector.X + "\n" + vector.Y;
-            }
-            //InfoLabel.Content = "Translation Not implemented";
-            //InfoLabel.Visibility = Visibility;
+            InfoLabel.Content = message;
+            InfoLabel.Visibility = Visibility.Visible;
+            InfoLabel.Foreground = Brushes.Red;
         }
 
-        private void BtnRigid_OnClick(object sender, RoutedEventArgs e)
-        {
-            SimpleElastix se = new SimpleElastix();
-          
-            se.SetFixedImage(SimpleITK.ReadImage(@"F:\BrainProtonDensity.bmp"));
-            se.SetMovingImage(SimpleITK.ReadImage(@"F:\BrainProtonDensityTranslatedR1013x17y.bmp"));
-            se.SetParameterMap(SimpleITK.GetDefaultParameterMap("rigid"));
-            se.Execute();
-            SimpleITK.WriteImage(se.GetResultImage(), @"F:\result.bmp");
-
-            if (!CheckPreconditions(2))
-            {
-                return;
-            }
-            InfoLabel.Content = "Rigid Not implemented";
-            InfoLabel.Visibility = Visibility;
-        }
-
-        private void BtnAffine_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (!CheckPreconditions(3))
-            {
-                return;
-            }
-            InfoLabel.Content = "Affine Not implemented";
-            InfoLabel.Visibility = Visibility;
-        }
-
-        private void BtnReset_OnClick(object sender, RoutedEventArgs e)
-        {
-            _srcPoints.Clear();
-            _dstPoints.Clear();
-
-            InfoLabel.Content = "";
-            InfoLabel.Content = "";
-
-            CanvasSrc.Children.RemoveRange(1, CanvasSrc.Children.Count - 1);
-            CanvasDst.Children.RemoveRange(1, CanvasDst.Children.Count - 1);
-        }
-
-        private void CanvasSrc_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            
-            Ellipse ellipse = new Ellipse
-            {
-                Fill = Brushes.DarkRed,
-                Width = 7,
-                Height = 7,
-                StrokeThickness = 2
-            };
-
-            CanvasSrc.Children.Add(ellipse);
-
-            Canvas.SetLeft(ellipse, e.GetPosition(CanvasSrc).X);
-            Canvas.SetTop(ellipse, e.GetPosition(CanvasSrc).Y);
-            _srcPoints.Add(new ImagePoint
-            {
-                X = (int)e.GetPosition(CanvasSrc).X,
-                Y = (int)e.GetPosition(CanvasSrc).Y
-            });
-
-            InfoLabel.Content = GetImagePointString(_srcPoints);
-        }
+        #endregion
     }
 }

@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace WpfApp
 {
@@ -135,15 +139,44 @@ namespace WpfApp
             return invMatrix;
         }
 
-        public System.Drawing.Image TransformImage(System.Drawing.Bitmap bmp, MyMatrix matrix)
+        //public Bitmap TransformImage(Bitmap bmp, MyMatrix matrix)
+        //{
+
+        //    int pixelDepth = 4; // assume RGBA
+        //    BitmapData data = bmp.LockBits(Rectangle.Empty, ImageLockMode.ReadOnly, PixelFormat.Format16bppArgb1555);
+        //    IntPtr ptr = data.Scan0;
+        //    int stride = data.Stride;
+
+        //    for (int x = 0; x < bmp.Width; x++)
+        //    {
+        //        for (int y = 0; y < bmp.Height; y++)
+        //        {
+        //            // modify your pixels here by using Marshal.Copy
+        //            ptr = new IntPtr(ptr.ToInt32() + stride);
+        //            Marshal.Copy(ptr, );
+
+        //        }
+
+        //    }
+
+        //    return null;
+        //}
+
+        public System.Drawing.Color[][] GetBitMapColorMatrix(Bitmap b1)
         {
-            Graphics graphics = Graphics.FromImage(bmp);
-            graphics.Transform = new System.Drawing.Drawing2D.Matrix(matrix.M[0, 1], matrix.M[0, 2], matrix.M[1, 0], matrix.M[1, 1], matrix.M[0, 2], matrix.M[1, 2]);
+            int hight = b1.Height;
+            int width = b1.Width;
 
-            for (int i = 0; i < bmp.Width; i++)
+            System.Drawing.Color[][] colorMatrix = new System.Drawing.Color[width][];
+            for (int i = 0; i < width; i++)
             {
-
+                colorMatrix[i] = new System.Drawing.Color[hight];
+                for (int j = 0; j < hight; j++)
+                {
+                    colorMatrix[i][j] = b1.GetPixel(i, j);
+                }
             }
+            return colorMatrix;
         }
 
     }

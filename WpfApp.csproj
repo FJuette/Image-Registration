@@ -63,6 +63,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ImageOperations.cs" />
     <Compile Include="MyMatrix.cs" />
     <Compile Include="MyVector.cs" />
     <Compile Include="Transformation.cs" />
@@ -115,11 +116,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Example Data\Affine\" />
-    <Folder Include="Example Data\Rigid\" />
     <Folder Include="Example Data\SimpleElastix\" />
     <Folder Include="Libs\" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Example Data\Rigid\england.png" />
+    <Resource Include="Example Data\Rigid\schottland.png" />
+    <Resource Include="Example Data\england.png" />
+    <Resource Include="Example Data\schottland.png" />
     <Content Include="SimpleITKCSharpNative.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
