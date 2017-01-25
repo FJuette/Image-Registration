@@ -52,9 +52,7 @@
                                 MouseRightButtonDown="CanvasSrc_OnMouseRightButtonDown"
                                 Width="800"
                                 Height="600">
-                            <Image Name="ImgSrc"
-                                       Width="800"
-                                       Height="600">
+                            <Image Name="ImgSrc">
                             </Image>
                         </Canvas>
                     </TabItem>

@@ -63,6 +63,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Couchy.cs" />
     <Compile Include="ImageOperations.cs" />
     <Compile Include="MyMatrix.cs" />
     <Compile Include="MyVector.cs" />
@@ -121,8 +122,8 @@
     <Resource Include="Example Data\Rigid\schottland.png" />
     <Resource Include="Example Data\england.png" />
     <Resource Include="Example Data\schottland.png" />
-    <Resource Include="Example Data\Mapping\Mapping_Image.bmp" />
-    <Resource Include="Example Data\Mapping\Template.bmp" />
+    <Resource Include="Example Data\Mapping\0_Template.bmp" />
+    <Resource Include="Example Data\Mapping\1_Mapping_Image.bmp" />
     <Content Include="SimpleITKCSharpNative.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

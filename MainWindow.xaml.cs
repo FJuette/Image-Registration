@@ -52,19 +52,49 @@ namespace WpfApp
             var rgbMatrixMapping = GetImageMatrix(bmpDst);
             var test = "";
 
-            for (int i = 0; i < 50; i++)
+            System.Collections.Concurrent.ConcurrentBag<Couchy> items = new System.Collections.Concurrent.ConcurrentBag<Couchy>();
+            //List<Couchy> items = new List<Couchy>();
+
+            Parallel.For(0, rgbMatrixMapping.Length - rgbMatrixTemplate.Length, i =>
             {
-                for (int j = 0; j < 100; j++)
+                for (int j = 0; j < rgbMatrixMapping[i].Length - rgbMatrixTemplate[0].Length; j++)
                 {
-                    var cfg = GetCfg(rgbMatrixMapping, rgbMatrixTemplate, i, j);
-                    Debug.WriteLine(cfg);
+                    //var cfg = GetCfg(rgbMatrixMapping, rgbMatrixTemplate, i, j);
+                    var cfg = GetCfgNormalized(rgbMatrixMapping, rgbMatrixTemplate, i, j);
+                    //if (items.Any(co => co.Sum == cfg))
+                    //{
+                    //    continue;
+                    //}
+                    var c = new Couchy();
+                    c.X = i;
+                    c.Y = j;
+                    c.Sum = cfg;
+
+                    items.Add(c);
                 }
-                
-            }
-            
+            }); // Parallel.For
+
+            // Als nächstes:
+            // FÜr jedes 50x50 Quadrat, die Zahlen mit (1^2 + 15^2)^1/2 (Wurzel)
+            // Die Sum / das obere Ergebnis teilen.
+
+            //var minItem = (from i in items
+            //               let maxId = items.Min(m => m.Sum)
+            //               where i.Sum == maxId
+            //               select i).FirstOrDefault();
+            // TODO This action takes to long atm
+            var maxItem = (from i in items
+                           let maxId = items.Max(m => m.Sum)
+                           where i.Sum == maxId
+                           select i).FirstOrDefault();
+
+            //Maximum is the hit!!!
+            //Debug.WriteLine($"Minimum: ({minItem.X}, {minItem.Y}, Value: {minItem.Sum}\tMaximum: ({maxItem.X}, {maxItem.Y}, Value: {maxItem.Sum}");
+            Debug.WriteLine($"Maximum: ({maxItem.X}, {maxItem.Y}, Value: {maxItem.Sum}");
+
         }
 
-        private long GetCfg(Pixel[][] rgbMapping, Pixel[][] rgbTemplate, int currentRow, int currentCol)
+        private long GetCfg(long[][] rgbMapping, long[][] rgbTemplate, int currentRow, int currentCol)
         {
             long result = 0;
             for (int i = 0; i < rgbTemplate.Length; i++)
@@ -73,31 +103,44 @@ namespace WpfApp
                 {
                     if (currentRow < rgbMapping.Length && currentCol < rgbMapping[i].Length)
                     {
-                        result += Math.Abs(rgbTemplate[i][j].Argb) * Math.Abs(rgbMapping[i + currentRow][j + currentCol].Argb);
+                        result += Math.Abs(rgbTemplate[i][j]) * Math.Abs(rgbMapping[i + currentRow][j + currentCol]);
                     }
                 }
             }
             return result;
         }
 
-        private Pixel[][] GetImageMatrix(Bitmap image)
+        private double GetCfgNormalized(long[][] rgbMapping, long[][] rgbTemplate, int currentRow, int currentCol)
+        {
+            long cfg = 0;
+            long cfgNorm = 0;
+            for (int i = 0; i < rgbTemplate.Length; i++)
+            {
+                for (int j = 0; j < rgbTemplate[i].Length; j++)
+                {
+                    if (currentRow < rgbMapping.Length && currentCol < rgbMapping[i].Length)
+                    {
+                        cfg += Math.Abs(rgbTemplate[i][j]) * Math.Abs(rgbMapping[i + currentRow][j + currentCol]);
+                        cfgNorm += Math.Abs(rgbMapping[i + currentRow][j + currentCol]) ^ 2;
+                    }
+                }
+            }
+            var result = cfg / (Math.Sqrt(cfgNorm));
+            return result;
+        }
+
+        private long[][] GetImageMatrix(Bitmap image)
         {
             int hight = image.Height;
             int width = image.Width;
 
-            Pixel[][] pixelMatrix = new Pixel[width][];
+            long[][] pixelMatrix = new long[width][];
             for (int i = 0; i < width; i++)
             {
-                pixelMatrix[i] = new Pixel[hight];
+                pixelMatrix[i] = new long[hight];
                 for (int j = 0; j < hight; j++)
                 {
-                    Pixel p = new Pixel
-                    {
-                        X = i,
-                        Y = j,
-                        Argb = image.GetPixel(i, j).ToArgb()
-                    };
-                    pixelMatrix[i][j] = p;
+                    pixelMatrix[i][j] = image.GetPixel(i, j).ToArgb();
                 }
             }
             return pixelMatrix;
@@ -286,7 +329,7 @@ namespace WpfApp
             //var image = ResizeImage(BitmapImage2Bitmap(_srcImage), (int) CanvasSrc.ActualWidth,
             //    (int) CanvasSrc.ActualHeight);
             ImgSrc.Source = _srcImage;
-            ImgSrc.Width = CanvasSrc.ActualWidth;
+            //ImgSrc.Width = CanvasSrc.ActualWidth;
             //ImageBrush brush = new ImageBrush();
             //brush.ImageSource = _srcImage;
             //CanvasSrc.Background = brush;

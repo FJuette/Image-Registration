@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace WpfApp
 {
-    public class @int
+    public class Couchy
     {
         public int X { get; set; }
         public int Y { get; set; }
-        public int Argb { get; set; }
+        public double Sum { get; set; }
     }
 }
