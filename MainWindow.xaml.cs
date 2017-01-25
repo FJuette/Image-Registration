@@ -1,27 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Controls;
-using System.Windows.Media;
 using itk.simple;
 using Brushes = System.Windows.Media.Brushes;
 using Image = System.Drawing.Image;
-using Matrix = System.Drawing.Drawing2D.Matrix;
-using PixelFormat = System.Windows.Media.PixelFormat;
 using Rectangle = System.Drawing.Rectangle;
 
 
@@ -48,6 +42,66 @@ namespace WpfApp
         #endregion
 
         #region Image Actions (Translate, Rotate and Scale)
+
+        private void BtnTemplate_OnClick(object sender, RoutedEventArgs e)
+        {
+            var bmp = BitmapImage2Bitmap(_srcImage);
+            var rgbMatrixTemplate = GetImageMatrix(bmp);
+
+            var bmpDst = BitmapImage2Bitmap(_dstImage);
+            var rgbMatrixMapping = GetImageMatrix(bmpDst);
+            var test = "";
+
+            for (int i = 0; i < 50; i++)
+            {
+                for (int j = 0; j < 100; j++)
+                {
+                    var cfg = GetCfg(rgbMatrixMapping, rgbMatrixTemplate, i, j);
+                    Debug.WriteLine(cfg);
+                }
+                
+            }
+            
+        }
+
+        private long GetCfg(Pixel[][] rgbMapping, Pixel[][] rgbTemplate, int currentRow, int currentCol)
+        {
+            long result = 0;
+            for (int i = 0; i < rgbTemplate.Length; i++)
+            {
+                for (int j = 0; j < rgbTemplate[i].Length; j++)
+                {
+                    if (currentRow < rgbMapping.Length && currentCol < rgbMapping[i].Length)
+                    {
+                        result += Math.Abs(rgbTemplate[i][j].Argb) * Math.Abs(rgbMapping[i + currentRow][j + currentCol].Argb);
+                    }
+                }
+            }
+            return result;
+        }
+
+        private Pixel[][] GetImageMatrix(Bitmap image)
+        {
+            int hight = image.Height;
+            int width = image.Width;
+
+            Pixel[][] pixelMatrix = new Pixel[width][];
+            for (int i = 0; i < width; i++)
+            {
+                pixelMatrix[i] = new Pixel[hight];
+                for (int j = 0; j < hight; j++)
+                {
+                    Pixel p = new Pixel
+                    {
+                        X = i,
+                        Y = j,
+                        Argb = image.GetPixel(i, j).ToArgb()
+                    };
+                    pixelMatrix[i][j] = p;
+                }
+            }
+            return pixelMatrix;
+        }
 
         private void BtnTranslation_OnClick(object sender, RoutedEventArgs e)
         {
@@ -117,6 +171,27 @@ namespace WpfApp
             se.SetParameterMap(SimpleITK.GetDefaultParameterMap("rigid"));
             se.Execute();
             SimpleITK.WriteImage(se.GetResultImage(), @"F:\result.bmp");
+        }
+
+        private bool IsSimilar(Bitmap dstBitmap)
+        {
+            var x = _srcPoints[0].X;
+            var y = _srcPoints[0].Y;
+            var bitmap = BitmapImage2Bitmap(_srcImage);
+            // For each point in src and in dst
+            var color = bitmap.GetPixel(x, y);
+            var srcArgb = color.ToArgb();
+
+            x = _dstPoints[0].X; // These cant work -> draw it on paper
+            y = _dstPoints[0].Y;
+            color = dstBitmap.GetPixel(x, y);
+            var dstArgb = color.ToArgb();
+
+            if (srcArgb == dstArgb)
+            {
+                return true;
+            }
+            return false;
         }
 
         #endregion
@@ -371,5 +446,7 @@ namespace WpfApp
         }
 
         #endregion
+
+        
     }
 }

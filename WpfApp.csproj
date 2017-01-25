@@ -66,6 +66,7 @@
     <Compile Include="ImageOperations.cs" />
     <Compile Include="MyMatrix.cs" />
     <Compile Include="MyVector.cs" />
+    <Compile Include="Pixel.cs" />
     <Compile Include="Transformation.cs" />
     <Compile Include="TransformationTests.cs" />
     <Page Include="MainWindow.xaml">
@@ -111,10 +112,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Example Data\Translation\Einfaches_Rechteck.bmp" />
-    <Resource Include="Example Data\Translation\Einfaches_Rechteck2.bmp" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Example Data\Affine\" />
     <Folder Include="Example Data\SimpleElastix\" />
     <Folder Include="Libs\" />
@@ -124,6 +121,8 @@
     <Resource Include="Example Data\Rigid\schottland.png" />
     <Resource Include="Example Data\england.png" />
     <Resource Include="Example Data\schottland.png" />
+    <Resource Include="Example Data\Mapping\Mapping_Image.bmp" />
+    <Resource Include="Example Data\Mapping\Template.bmp" />
     <Content Include="SimpleITKCSharpNative.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

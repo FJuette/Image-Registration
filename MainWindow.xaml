@@ -25,7 +25,7 @@
                     <MenuItem Header="_Overlay Images" Name="BtnOverlay" Click="BtnOverlay_OnClick">
                     </MenuItem>
                     <Separator />
-                    <MenuItem Header="_Translation Registration" Name="BtnTranslation" Click="BtnTranslation_OnClick">
+                    <MenuItem Header="_Template Registration" Name="BtnTemplate" Click="BtnTemplate_OnClick">
                     </MenuItem>
                     <MenuItem Header="_Rigid Registration" Name="BtnRigid" Click="BtnRigid_OnClick">
                     </MenuItem>
