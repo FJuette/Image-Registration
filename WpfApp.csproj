@@ -68,6 +68,7 @@
     <Compile Include="MyMatrix.cs" />
     <Compile Include="MyVector.cs" />
     <Compile Include="Pixel.cs" />
+    <Compile Include="TemplateRegistration.cs" />
     <Compile Include="Transformation.cs" />
     <Compile Include="TransformationTests.cs" />
     <Page Include="MainWindow.xaml">
@@ -114,7 +115,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Example Data\Affine\" />
-    <Folder Include="Example Data\SimpleElastix\" />
     <Folder Include="Libs\" />
   </ItemGroup>
   <ItemGroup>
@@ -124,6 +124,11 @@
     <Resource Include="Example Data\schottland.png" />
     <Resource Include="Example Data\Mapping\0_Template.bmp" />
     <Resource Include="Example Data\Mapping\1_Mapping_Image.bmp" />
+    <Resource Include="Example Data\Mapping\3_gmap.png" />
+    <Resource Include="Example Data\Mapping\4_gmaps.png" />
+    <Resource Include="Example Data\Mapping\3_1_gmap.png" />
+    <Resource Include="Example Data\SimpleElastix\BrainProtonDensity.png" />
+    <Resource Include="Example Data\SimpleElastix\BrainProtonDensityTranslatedR1013x17yS12.png" />
     <Content Include="SimpleITKCSharpNative.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

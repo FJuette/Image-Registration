@@ -31,6 +31,8 @@
                     </MenuItem>
                     <MenuItem Header="_Affine Registration" Name="BtnAffine" Click="BtnAffine_OnClick">
                     </MenuItem>
+                    <MenuItem Header="_Simple Elastix" Name="BtnSimpleElastix" Click="BtnSimpleElastix_OnClick">
+                    </MenuItem>
                     <Separator />
                     <MenuItem Header="_Reset Markers" Name="BtnReset" Click="BtnReset_OnClick">
                     </MenuItem>
@@ -38,14 +40,20 @@
             </Menu>
             <Grid Width="900" Height="680" VerticalAlignment="Top" HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
                     <RowDefinition Height="630" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-
-                <TabControl Grid.Row="0">
+                
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <RadioButton Name="RbArgb" Content="Argb" IsChecked="True" Margin="0 3 0 0" />
+                    <RadioButton Name="RbHsb" Content="Hsb" IsChecked="False" Margin="10 3 0 0" />
+                </StackPanel>
+                
+                <TabControl Grid.Row="1" Name="TabControl">
                     <TabItem Header="Source Image">
                         <Canvas Name="CanvasSrc" 
                                 Background="White" 
@@ -62,20 +70,16 @@
                                 Width="800"
                                 Height="600"
                                 MouseRightButtonDown="CanvasDst_OnMouseRightButtonDown">
-                            <Image Name="ImgDst" 
-                                   Width="800"
-                                   Height="600">
+                            <Image Name="ImgDst">
                             </Image>
                         </Canvas>
                     </TabItem>
                     <TabItem Header="Result">
-                        <Image Name="ImgBoth" 
-                                Width="800"
-                               Height="600">
+                        <Image Name="ImgBoth">
                         </Image>
                     </TabItem>
                 </TabControl>
-                <Grid Grid.Row="1" 
+                <Grid Grid.Row="2" 
                       Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="200" />
@@ -93,8 +97,7 @@
                            HorizontalAlignment="Left" 
                            VerticalAlignment="Top" 
                            Name="InfoLabel">
-                            1
-                        </Label>
+                    </Label>
 
                     <Label Grid.Row="0" 
                            Grid.Column="1" 
@@ -103,7 +106,6 @@
                            HorizontalAlignment="Left" 
                            VerticalAlignment="Top" 
                            Name="InfoLabel2">
-                        2
                     </Label>
                     <Label Grid.Row="0" 
                            Grid.Column="2" 
@@ -112,7 +114,6 @@
                            HorizontalAlignment="Left" 
                            VerticalAlignment="Top" 
                            Name="InfoLabel3">
-                        3
                     </Label>
                 </Grid>
                 

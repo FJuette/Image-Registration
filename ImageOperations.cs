@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WpfApp
 {
@@ -52,20 +50,6 @@ namespace WpfApp
 
             _transformStack.Push(m);
         }
-
-        //public void Restore()
-        //{
-        //    _offset = PointF.Empty;
-        //    _transformStack = new Stack<Matrix>();
-        //    ApplyTransform();
-        //}
-
-        //public void Undo()
-        //{
-        //    if (_transformStack.Count != 0)
-        //        _transformStack.Pop();
-        //    ApplyTransform();
-        //}
 
         private Matrix GetTransform()
         {

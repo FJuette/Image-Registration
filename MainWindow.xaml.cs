@@ -24,14 +24,17 @@ namespace WpfApp
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         #region Properties and Constructor
 
-        private List<ImagePoint> _srcPoints = new List<ImagePoint>();
-        private List<ImagePoint> _dstPoints = new List<ImagePoint>();
+        private readonly List<ImagePoint> _srcPoints = new List<ImagePoint>();
+        private readonly List<ImagePoint> _dstPoints = new List<ImagePoint>();
         private BitmapImage _srcImage;
         private BitmapImage _dstImage;
+
+        private itk.simple.Image _soruceImageItk;
+        private itk.simple.Image _destImageItk;
 
         public MainWindow()
         {
@@ -41,157 +44,36 @@ namespace WpfApp
 
         #endregion
 
-        #region Image Actions (Translate, Rotate and Scale)
+        #region Image Actions (Template, Affine, SimpleElastix)
 
         private void BtnTemplate_OnClick(object sender, RoutedEventArgs e)
         {
             var bmp = BitmapImage2Bitmap(_srcImage);
-            var rgbMatrixTemplate = GetImageMatrix(bmp);
-
             var bmpDst = BitmapImage2Bitmap(_dstImage);
-            var rgbMatrixMapping = GetImageMatrix(bmpDst);
-            var test = "";
 
-            System.Collections.Concurrent.ConcurrentBag<Couchy> items = new System.Collections.Concurrent.ConcurrentBag<Couchy>();
-            //List<Couchy> items = new List<Couchy>();
-
-            Parallel.For(0, rgbMatrixMapping.Length - rgbMatrixTemplate.Length, i =>
+            int x = 0;
+            int y = 0;
+            
+            if (RbArgb.IsChecked != null && RbArgb.IsChecked.Value)
             {
-                for (int j = 0; j < rgbMatrixMapping[i].Length - rgbMatrixTemplate[0].Length; j++)
-                {
-                    //var cfg = GetCfg(rgbMatrixMapping, rgbMatrixTemplate, i, j);
-                    var cfg = GetCfgNormalized(rgbMatrixMapping, rgbMatrixTemplate, i, j);
-                    //if (items.Any(co => co.Sum == cfg))
-                    //{
-                    //    continue;
-                    //}
-                    var c = new Couchy();
-                    c.X = i;
-                    c.Y = j;
-                    c.Sum = cfg;
-
-                    items.Add(c);
-                }
-            }); // Parallel.For
-
-            // Als nächstes:
-            // FÜr jedes 50x50 Quadrat, die Zahlen mit (1^2 + 15^2)^1/2 (Wurzel)
-            // Die Sum / das obere Ergebnis teilen.
-
-            //var minItem = (from i in items
-            //               let maxId = items.Min(m => m.Sum)
-            //               where i.Sum == maxId
-            //               select i).FirstOrDefault();
-            // TODO This action takes to long atm
-            var maxItem = (from i in items
-                           let maxId = items.Max(m => m.Sum)
-                           where i.Sum == maxId
-                           select i).FirstOrDefault();
-
-            //Maximum is the hit!!!
-            //Debug.WriteLine($"Minimum: ({minItem.X}, {minItem.Y}, Value: {minItem.Sum}\tMaximum: ({maxItem.X}, {maxItem.Y}, Value: {maxItem.Sum}");
-            Debug.WriteLine($"Maximum: ({maxItem.X}, {maxItem.Y}, Value: {maxItem.Sum}");
-
-        }
-
-        private long GetCfg(long[][] rgbMapping, long[][] rgbTemplate, int currentRow, int currentCol)
-        {
-            long result = 0;
-            for (int i = 0; i < rgbTemplate.Length; i++)
-            {
-                for (int j = 0; j < rgbTemplate[i].Length; j++)
-                {
-                    if (currentRow < rgbMapping.Length && currentCol < rgbMapping[i].Length)
-                    {
-                        result += Math.Abs(rgbTemplate[i][j]) * Math.Abs(rgbMapping[i + currentRow][j + currentCol]);
-                    }
-                }
+                TemplateRegistration registrationArgb = new TemplateRegistration();
+                registrationArgb.RunArgb(bmp, bmpDst);
+                x = registrationArgb.X;
+                y = registrationArgb.Y;
+                Debug.WriteLine($"Mapping Argb\tMaximum: ({registrationArgb.X}, {registrationArgb.Y}, Value: {registrationArgb.Maximum})");
             }
-            return result;
-        }
-
-        private double GetCfgNormalized(long[][] rgbMapping, long[][] rgbTemplate, int currentRow, int currentCol)
-        {
-            long cfg = 0;
-            long cfgNorm = 0;
-            for (int i = 0; i < rgbTemplate.Length; i++)
+            else if (RbHsb.IsChecked != null && RbHsb.IsChecked.Value)
             {
-                for (int j = 0; j < rgbTemplate[i].Length; j++)
-                {
-                    if (currentRow < rgbMapping.Length && currentCol < rgbMapping[i].Length)
-                    {
-                        cfg += Math.Abs(rgbTemplate[i][j]) * Math.Abs(rgbMapping[i + currentRow][j + currentCol]);
-                        cfgNorm += Math.Abs(rgbMapping[i + currentRow][j + currentCol]) ^ 2;
-                    }
-                }
+                TemplateRegistration registrationHsb = new TemplateRegistration();
+                registrationHsb.RunHsb(bmp, bmpDst);
+                x = registrationHsb.X;
+                y = registrationHsb.Y;
+                Debug.WriteLine($"Mapping Hue\tMaximum: ({registrationHsb.X}, {registrationHsb.Y}, Value: {registrationHsb.Maximum}");
             }
-            var result = cfg / (Math.Sqrt(cfgNorm));
-            return result;
-        }
-
-        private long[][] GetImageMatrix(Bitmap image)
-        {
-            int hight = image.Height;
-            int width = image.Width;
-
-            long[][] pixelMatrix = new long[width][];
-            for (int i = 0; i < width; i++)
-            {
-                pixelMatrix[i] = new long[hight];
-                for (int j = 0; j < hight; j++)
-                {
-                    pixelMatrix[i][j] = image.GetPixel(i, j).ToArgb();
-                }
-            }
-            return pixelMatrix;
-        }
-
-        private void BtnTranslation_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (CheckPreconditions(1))
-            {
-                Transformation transform = new Transformation();
-
-                ImageOperations imageOps = new ImageOperations(BitmapImage2Bitmap(_srcImage));
-                //imageOps.SetTranslate(_dstPoints[0].X - _srcPoints[0].X, _dstPoints[0].Y - _srcPoints[0].Y);
-                imageOps.SetRotate(80);
-                var result = imageOps.ApplyTransform();
-                result.Save(@"G:\test.png");
-                return;
-
-                var sourceVector = new MyVector(_srcPoints[0].X, _srcPoints[0].Y);
-                var destVector = new MyVector(_dstPoints[0].X, _dstPoints[0].Y);
-                var matrix = transform.GetTranslationsMatrix(sourceVector, destVector);
-
-                InfoLabel.Content = transform.MatrixToString(matrix);
-
-                var inverse = transform.InvertMatrix(matrix);
-                InfoLabel2.Content = transform.MatrixToString(inverse);
-
-                var vector = transform.MultiplyMatrixWithVector(inverse, destVector);
-                InfoLabel3.Content = vector.X + "\n" + vector.Y;
-            }
-            //InfoLabel.Content = "Translation Not implemented";
-            //InfoLabel.Visibility = Visibility;
-        }
-
-        private void BtnRigid_OnClick(object sender, RoutedEventArgs e)
-        {
-            ImageOperations imageOps = new ImageOperations(BitmapImage2Bitmap(_dstImage));
-            imageOps.SetRotate(90); //TODO this must be dynamic -> How to mess similarity?
-            // Die Farbinsentität an 3 Punkten muss dem des Ausgangsbildes entsprechen - Klappt das?ö
-            var result = imageOps.ApplyTransform();
-            result.Save(@"G:\test.png");
-            BitmapImage img = new BitmapImage(new Uri(@"G:\test.png"));
-            ImgDst.Source = img;
-            _dstImage = img;
-            return;
-            if (!CheckPreconditions(2))
-            {
-                return;
-            }
-            InfoLabel.Content = "Rigid Not implemented";
-            InfoLabel.Visibility = Visibility;
+            
+            ImgBoth.Source = DrawRectangle(BitmapImage2Bitmap(_dstImage), x - 1, y - 1, bmp.Width + 1, bmp.Height + 1);
+            TabControl.SelectedIndex = 2;
+            ShowInfoInLabel("Done");
         }
 
         private void BtnAffine_OnClick(object sender, RoutedEventArgs e)
@@ -200,54 +82,30 @@ namespace WpfApp
             {
                 return;
             }
-            InfoLabel.Content = "Affine Not implemented";
-            InfoLabel.Visibility = Visibility;
+            ShowErrorInLabel("Affine Not implemented");
         }
-
-        private void SimpleElastixTest()
+        
+        private void BtnSimpleElastix_OnClick(object sender, RoutedEventArgs e)
         {
-            // Currently not working
             SimpleElastix se = new SimpleElastix();
 
-            se.SetFixedImage(SimpleITK.ReadImage(@"F:\BrainProtonDensity.bmp"));
-            se.SetMovingImage(SimpleITK.ReadImage(@"F:\BrainProtonDensityTranslatedR1013x17y.bmp"));
-            se.SetParameterMap(SimpleITK.GetDefaultParameterMap("rigid"));
+            se.SetFixedImage(_soruceImageItk);
+            se.SetMovingImage(_destImageItk);
+            se.SetParameterMap(SimpleITK.GetDefaultParameterMap("affine"));
+            
             se.Execute();
-            SimpleITK.WriteImage(se.GetResultImage(), @"F:\result.bmp");
-        }
-
-        private bool IsSimilar(Bitmap dstBitmap)
-        {
-            var x = _srcPoints[0].X;
-            var y = _srcPoints[0].Y;
-            var bitmap = BitmapImage2Bitmap(_srcImage);
-            // For each point in src and in dst
-            var color = bitmap.GetPixel(x, y);
-            var srcArgb = color.ToArgb();
-
-            x = _dstPoints[0].X; // These cant work -> draw it on paper
-            y = _dstPoints[0].Y;
-            color = dstBitmap.GetPixel(x, y);
-            var dstArgb = color.ToArgb();
-
-            if (srcArgb == dstArgb)
-            {
-                return true;
-            }
-            return false;
+            var result = se.GetResultImage();
+            SimpleITK.WriteImage(result, AppDomain.CurrentDomain.BaseDirectory + @"resultBrain.nii");
         }
 
         #endregion
 
         #region Standard Button Actions
-        
+
         private void BtnReset_OnClick(object sender, RoutedEventArgs e)
         {
             _srcPoints.Clear();
             _dstPoints.Clear();
-
-            InfoLabel.Content = "";
-            InfoLabel.Content = "";
 
             CanvasSrc.Children.RemoveRange(1, CanvasSrc.Children.Count - 1);
             CanvasDst.Children.RemoveRange(1, CanvasDst.Children.Count - 1);
@@ -262,7 +120,7 @@ namespace WpfApp
 
             Bitmap source1 = BitmapImage2Bitmap(_srcImage); // your source images - assuming they're the same size
             Bitmap source2 = BitmapImage2Bitmap(_dstImage);
-            var target = new Bitmap(source1.Width, source1.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb); // Format32bppArgb
+            var target = new Bitmap(source1.Width, source1.Height, PixelFormat.Format32bppArgb); // Format32bppArgb
             var graphics = Graphics.FromImage(target);
             graphics.CompositingMode = CompositingMode.SourceOver; // this is the default, but just to be clear
 
@@ -297,7 +155,7 @@ namespace WpfApp
                 Y = (int)e.GetPosition(CanvasSrc).Y
             });
 
-            InfoLabel.Content = GetImagePointString(_srcPoints);
+            ShowInfoInLabel(GetImagePointString(_srcPoints));
         }
 
         private void CanvasDst_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -320,25 +178,25 @@ namespace WpfApp
                 Y = (int)e.GetPosition(ImgDst).Y
             });
 
-            InfoLabel.Content = GetImagePointString(_dstPoints);
+            ShowInfoInLabel(GetImagePointString(_dstPoints));
         }
 
         private void BtnLoadSrc_OnClick(object sender, RoutedEventArgs e)
         {
-            _srcImage = OpenImage();
-            //var image = ResizeImage(BitmapImage2Bitmap(_srcImage), (int) CanvasSrc.ActualWidth,
-            //    (int) CanvasSrc.ActualHeight);
+            var path = OpenImage();
+            var img = new BitmapImage(new Uri(path));
+            _srcImage = img;
             ImgSrc.Source = _srcImage;
-            //ImgSrc.Width = CanvasSrc.ActualWidth;
-            //ImageBrush brush = new ImageBrush();
-            //brush.ImageSource = _srcImage;
-            //CanvasSrc.Background = brush;
+            _soruceImageItk = SimpleITK.ReadImage(path, PixelIDValueEnum.sitkFloat32);
         }
 
         private void BtnLoadDst_OnClick(object sender, RoutedEventArgs e)
         {
-            _dstImage = OpenImage();
+            var path = OpenImage();
+            var img = new BitmapImage(new Uri(path));
+            _dstImage = img;
             ImgDst.Source = _dstImage;
+            _destImageItk = SimpleITK.ReadImage(path, PixelIDValueEnum.sitkFloat32);
         }
 
         private void BtnExit_OnClick(object sender, RoutedEventArgs e)
@@ -349,16 +207,40 @@ namespace WpfApp
         #endregion
         
         # region Helping Functions
+        
+        /// <summary>
+        /// Draws a rectangle on a given image. Used by the template registraion
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        private BitmapImage DrawRectangle(Image image, int x, int y, int width, int height)
+        {
+            var graphics = Graphics.FromImage(image);
+            graphics.CompositingMode = CompositingMode.SourceOver; // this is the default, but just to be clear
 
-        private BitmapImage OpenImage()
+            graphics.DrawRectangle(new Pen(Color.Red, 4f), x, y, width, height);
+
+            Image result = new Bitmap(image);
+            graphics.DrawImage(result, 0, 0);
+
+            Random rnd = new Random();
+            var num = rnd.Next(1, 1000);
+            result.Save(AppDomain.CurrentDomain.BaseDirectory + num + "rectangle.png", ImageFormat.Png);
+            BitmapImage myBitmap = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + num + "rectangle.png"));
+            return myBitmap;
+        }
+
+        private string OpenImage()
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "All files (*.*)|*.*|Images (*.bmp)|*.bmp"
+                Filter = "All files (*.*)|*.*"
             };
-            if (openFileDialog.ShowDialog() != true)
-                return null;
-            return new BitmapImage(new Uri(openFileDialog.FileName));
+            return openFileDialog.ShowDialog() != true ? null : openFileDialog.FileName;
         }
 
         private Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
@@ -368,13 +250,13 @@ namespace WpfApp
                 BitmapEncoder enc = new BmpBitmapEncoder();
                 enc.Frames.Add(BitmapFrame.Create(bitmapImage));
                 enc.Save(outStream);
-                System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(outStream);
+                var bitmap = new Bitmap(outStream);
 
                 return new Bitmap(bitmap);
             }
         }
 
-        public Bitmap ChangeOpacity(System.Drawing.Image img, float opacityvalue)
+        public Bitmap ChangeOpacity(Image img, float opacityvalue)
         {
             Bitmap bmp = new Bitmap(img.Width, img.Height); // Determining Width and Height of Source Image
             Graphics graphics = Graphics.FromImage(bmp);
@@ -401,39 +283,6 @@ namespace WpfApp
             return res;
         }
 
-
-        /// <summary>
-        /// Resize the image to the specified width and height.
-        /// </summary>
-        /// <param name="image">The image to resize.</param>
-        /// <param name="width">The width to resize to.</param>
-        /// <param name="height">The height to resize to.</param>
-        /// <returns>The resized image.</returns>
-        public static Bitmap ResizeImage(Image image, int width, int height)
-        {
-            var destRect = new Rectangle(0, 0, width, height);
-            var destImage = new Bitmap(width, height);
-
-            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
-
-            using (var graphics = Graphics.FromImage(destImage))
-            {
-                graphics.CompositingMode = CompositingMode.SourceCopy;
-                graphics.CompositingQuality = CompositingQuality.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.SmoothingMode = SmoothingMode.HighQuality;
-                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-                using (var wrapMode = new ImageAttributes())
-                {
-                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
-                }
-            }
-
-            return destImage;
-        }
-
         #endregion
         
         #region Info Functions
@@ -447,7 +296,7 @@ namespace WpfApp
                     System.Threading.Thread.Sleep(10000);
                     Application.Current.Dispatcher.Invoke(() => { InfoLabel.Visibility = Visibility.Hidden; });
                 });
-                //task.Start();
+                task.Start();
             }
         }
         
@@ -486,6 +335,13 @@ namespace WpfApp
             InfoLabel.Content = message;
             InfoLabel.Visibility = Visibility.Visible;
             InfoLabel.Foreground = Brushes.Red;
+        }
+
+        private void ShowInfoInLabel(string message)
+        {
+            InfoLabel.Content = message;
+            InfoLabel.Visibility = Visibility.Visible;
+            InfoLabel.Foreground = Brushes.Black;
         }
 
         #endregion
