@@ -27,8 +27,6 @@
                     <Separator />
                     <MenuItem Header="_Template Registration" Name="BtnTemplate" Click="BtnTemplate_OnClick">
                     </MenuItem>
-                    <MenuItem Header="_Rigid Registration" Name="BtnRigid" Click="BtnRigid_OnClick">
-                    </MenuItem>
                     <MenuItem Header="_Affine Registration" Name="BtnAffine" Click="BtnAffine_OnClick">
                     </MenuItem>
                     <MenuItem Header="_Simple Elastix" Name="BtnSimpleElastix" Click="BtnSimpleElastix_OnClick">

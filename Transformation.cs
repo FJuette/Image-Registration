@@ -1,11 +1,50 @@
 ﻿using System;
 using System.Drawing;
 using System.Text;
+using OpenCV.Net;
 
 namespace WpfApp
 {
     public class Transformation
     {
+
+        public void TestOpenCv()
+        {
+            Point2f[] srcPoints = new Point2f[3];
+            Point2f p1 = new Point2f(144, 95);
+            Point2f p2 = new Point2f(146, 454);
+            Point2f p3 = new Point2f(679, 95);
+
+            Point2f[] dstPoints = new Point2f[3];
+            Point2f pd1 = new Point2f(0, 95*0.33f);
+            Point2f pd2 = new Point2f(146*0.85f, 454*0.25f);
+            Point2f pd3 = new Point2f(679*0.15f, 95*0.7f);
+
+            Mat src, warpDst, warpRotateDst;
+            src = CV.LoadImageM(@"G:\Dropbox\FH\Mastersemester 3\Wissenschaftliches Projekt\Einfaches_Rechteck.bmp", LoadImageFlags.Color);
+
+            Mat rotMat = new Mat(2, 3, Depth.F32, src.ElementType);
+            Mat warpMat = new Mat(2, 3, Depth.F32, src.ElementType);
+            Mat mapMat = new Mat(2, 3, Depth.F32, src.ElementType);
+
+
+
+            warpDst = Mat.Zeros(src.Rows, src.Cols, Depth.F32, src.ElementType);
+
+            warpMat = CV.GetAffineTransform(srcPoints, dstPoints, warpDst);
+
+            CV.WarpAffine(src, warpDst, warpMat, WarpFlags.NearestNeighbor, Scalar.Rgb(100, 100, 100));
+            OpenCV.Net.Point2f center = new OpenCV.Net.Point2f(warpDst.Cols / 2, warpDst.Rows / 2);
+            double angle = -50;
+            double scale = 0.6;
+
+            rotMat = CV.GetRotationMatrix2D(center, angle, scale, mapMat);
+
+            //CV.WarpAffine(warpDst, warpRotateDst, rotMat, WarpFlags.NearestNeighbor, Scalar.Rgb(100, 100, 100));
+
+            var t = "";
+        }
+
         public MyMatrix GetTranslationsMatrix(MyVector sourceVector, MyVector destVector)
         {
             var dx = destVector.X - sourceVector.X;

@@ -78,6 +78,8 @@ namespace WpfApp
 
         private void BtnAffine_OnClick(object sender, RoutedEventArgs e)
         {
+            Transformation t = new Transformation();
+            t.TestOpenCv();
             if (!CheckPreconditions(3))
             {
                 return;
