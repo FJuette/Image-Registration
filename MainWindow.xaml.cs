@@ -222,10 +222,26 @@ namespace WpfApp
             var img = new BitmapImage(new Uri(path));
             _srcImage = img;
             ImgSrc.Source = _srcImage;
-            _soruceImageItk = SimpleITK.ReadImage(path, PixelIDValueEnum.sitkFloat32);
         }
 
         private void BtnLoadDst_OnClick(object sender, RoutedEventArgs e)
+        {
+            var path = OpenImage();
+            var img = new BitmapImage(new Uri(path));
+            _dstImage = img;
+            ImgDst.Source = _dstImage;
+        }
+
+        private void BtnLoadBrainSource_OnClick(object sender, RoutedEventArgs e)
+        {
+            var path = OpenImage();
+            var img = new BitmapImage(new Uri(path));
+            _srcImage = img;
+            ImgSrc.Source = _srcImage;
+            _soruceImageItk = SimpleITK.ReadImage(path, PixelIDValueEnum.sitkFloat32);
+        }
+
+        private void BtnLoadBrainTarget_OnClick(object sender, RoutedEventArgs e)
         {
             var path = OpenImage();
             var img = new BitmapImage(new Uri(path));
@@ -381,6 +397,5 @@ namespace WpfApp
 
         #endregion
 
-        
     }
 }

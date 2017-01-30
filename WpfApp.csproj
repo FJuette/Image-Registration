@@ -103,6 +103,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="Build.bat" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -115,15 +116,37 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Resource Include="Example Data\Affine\england.png" />
-    <Resource Include="Example Data\Affine\schottland.png" />
-    <Resource Include="Example Data\Mapping\0_Template.bmp" />
-    <Resource Include="Example Data\Mapping\1_Mapping_Image.bmp" />
-    <Resource Include="Example Data\Mapping\3_gmap.png" />
-    <Resource Include="Example Data\Mapping\4_gmaps.png" />
-    <Resource Include="Example Data\Mapping\3_1_gmap.png" />
-    <Resource Include="Example Data\SimpleElastix\BrainProtonDensity.png" />
-    <Resource Include="Example Data\SimpleElastix\BrainProtonDensityTranslatedR1013x17yS12.png" />
+    <Content Include="Example Data\Affine\england.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Example Data\Affine\schottland.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Example Data\Affine\schottland2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Example Data\Mapping\0_Template.bmp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Example Data\Mapping\1_Mapping_Image.bmp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Example Data\Mapping\3_gmap.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Example Data\Mapping\4_gmaps.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Example Data\Mapping\3_1_gmap.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Example Data\SimpleElastix\BrainProtonDensity.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Example Data\SimpleElastix\BrainProtonDensityTranslatedR1013x17yS12.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Build.fsx" />
     <Content Include="Libs\SimpleITKCSharpManaged.dll" />
     <Content Include="SimpleITKCSharpNative.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

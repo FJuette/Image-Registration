@@ -14,6 +14,12 @@
                     <MenuItem Header="_Load Target Image" Name="BtnLoadTarget" Click="BtnLoadDst_OnClick">
                     </MenuItem>
                     <Separator />
+
+                    <MenuItem Header="_Load Brain Source Image" Name="BtnLoadBrainSource" Click="BtnLoadBrainSource_OnClick">
+                    </MenuItem>
+                    <MenuItem Header="_Load Brain Target Image" Name="BtnLoadBrainTarget" Click="BtnLoadBrainTarget_OnClick">
+                    </MenuItem>
+                    <Separator />
                     <MenuItem Header="_Exit" Name="BtnExit" Click="BtnExit_OnClick">
                         <!--<MenuItem.Icon>
                             <Image Width="20" Height="20" Source="Content/CloseSolution_64x.png"></Image>
