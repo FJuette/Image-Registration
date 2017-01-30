@@ -13,9 +13,14 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Controls;
+using System.Windows.Media;
 using itk.simple;
 using Brushes = System.Windows.Media.Brushes;
+using Color = System.Drawing.Color;
 using Image = System.Drawing.Image;
+using Pen = System.Drawing.Pen;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
+using Point = System.Windows.Point;
 using Rectangle = System.Drawing.Rectangle;
 
 
@@ -78,13 +83,39 @@ namespace WpfApp
 
         private void BtnAffine_OnClick(object sender, RoutedEventArgs e)
         {
-            Transformation t = new Transformation();
-            t.TestOpenCv();
             if (!CheckPreconditions(3))
-            {
                 return;
+
+            Transformation t = new Transformation();
+
+            Point s1 = new Point(_dstPoints[0].X, _dstPoints[0].Y);
+            Point s2 = new Point(_dstPoints[1].X, _dstPoints[1].Y);
+            Point s3 = new Point(_dstPoints[2].X, _dstPoints[2].Y);
+
+            Point d1 = new Point(_srcPoints[0].X, _srcPoints[0].Y);
+            Point d2 = new Point(_srcPoints[1].X, _srcPoints[1].Y);
+            Point d3 = new Point(_srcPoints[2].X, _srcPoints[2].Y);
+
+            var res = t.Affine(_dstImage, s1, s2, s3, d1, d2, d3);
+            RenderTargetBitmap rtb = new RenderTargetBitmap((int)_srcImage.Width,
+                (int)_srcImage.Height, 96d, 96d, PixelFormats.Default);
+            rtb.Render(res);
+            var bitmapImage = new BitmapImage();
+            var bitmapEncoder = new PngBitmapEncoder();
+            bitmapEncoder.Frames.Add(BitmapFrame.Create(rtb));
+
+            using (var stream = new MemoryStream())
+            {
+                bitmapEncoder.Save(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+
+                bitmapImage.BeginInit();
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.StreamSource = stream;
+                bitmapImage.EndInit();
             }
-            ShowErrorInLabel("Affine Not implemented");
+            _dstImage = bitmapImage;
+            BtnOverlay_OnClick(this, e);
         }
         
         private void BtnSimpleElastix_OnClick(object sender, RoutedEventArgs e)
@@ -98,6 +129,8 @@ namespace WpfApp
             se.Execute();
             var result = se.GetResultImage();
             SimpleITK.WriteImage(result, AppDomain.CurrentDomain.BaseDirectory + @"resultBrain.nii");
+            ShowInfoInLabel("Image: " + AppDomain.CurrentDomain.BaseDirectory + @"resultBrain.nii");
+            Clipboard.SetText(AppDomain.CurrentDomain.BaseDirectory);
         }
 
         #endregion
@@ -129,7 +162,7 @@ namespace WpfApp
             graphics.DrawImage(source1, 0, 0);
 
             source2 = ChangeOpacity(source2, 0.5f);
-            graphics.DrawImage(source2, 0, 0); //TODO here I can set x and y position if the second image, i can use this for translation
+            graphics.DrawImage(source2, 0, 0);
 
             target.Save(AppDomain.CurrentDomain.BaseDirectory + "merged.png", ImageFormat.Png);
             BitmapImage myBitmap = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "merged.png"));
@@ -295,7 +328,7 @@ namespace WpfApp
             {
                 Task task = new Task(() =>
                 {
-                    System.Threading.Thread.Sleep(10000);
+                    System.Threading.Thread.Sleep(15000);
                     Application.Current.Dispatcher.Invoke(() => { InfoLabel.Visibility = Visibility.Hidden; });
                 });
                 task.Start();

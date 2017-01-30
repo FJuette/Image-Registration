@@ -29,7 +29,6 @@ namespace WpfApp
             };
             Affine a = new Affine(srcPoints, dstPoints);
             var res = a.TransformPoint(new []{1, 1});
-            var t = "";
         }
     }
 }

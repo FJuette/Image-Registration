@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Windows.Media.Imaging;
+using NUnit.Framework;
+using Point = System.Windows.Point;
 
 namespace WpfApp
 {
@@ -10,17 +13,19 @@ namespace WpfApp
         {
             // Assert
             Transformation t = new Transformation();
-            var sourceVector = new MyVector(146, 93);
-            var destVector = new MyVector(208, 156);
+
+            Point s1 = new Point(208, 156);
+            Point s2 = new Point(749, 155);
+            Point s3 = new Point(211, 518);
+
+            Point d1 = new Point(146, 93);
+            Point d2 = new Point(685, 94);
+            Point d3 = new Point(146, 456);
 
 
-            // Act
-            var matrix = t.GetTranslationsMatrix(sourceVector, destVector);
-            var inverse = t.InvertMatrix(matrix);
-            var resultVector = t.MultiplyMatrixWithVector(inverse, destVector);
-
-            Assert.AreEqual(sourceVector.X, resultVector.X);
-            Assert.AreEqual(sourceVector.Y, resultVector.Y);
+            //// Act
+            var res = t.Affine(new BitmapImage(new Uri(@"G:\Dropbox\FH\Mastersemester 3\Wissenschaftliches Projekt\Einfaches_Rechteck2.bmp")),
+                s1, s2, s3, d1, d2, d3);
         }
     }
 }

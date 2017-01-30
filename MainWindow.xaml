@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="950" MinWidth="950" MinHeight="800" MaxWidth="950" MaxHeight="800">
     <Grid>
@@ -36,7 +35,7 @@
                     </MenuItem>
                 </MenuItem>
             </Menu>
-            <Grid Width="900" Height="680" VerticalAlignment="Top" HorizontalAlignment="Center">
+            <Grid Width="900" Height="740" VerticalAlignment="Top" HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30" />
                     <RowDefinition Height="630" />
@@ -83,9 +82,7 @@
                         <RowDefinition Height="200" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200" />
-                        <ColumnDefinition Width="200" />
-                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Row="0" 
                            Grid.Column="0" 
@@ -96,26 +93,7 @@
                            VerticalAlignment="Top" 
                            Name="InfoLabel">
                     </Label>
-
-                    <Label Grid.Row="0" 
-                           Grid.Column="1" 
-                           Visibility="Visible"
-                           FontSize="11"
-                           HorizontalAlignment="Left" 
-                           VerticalAlignment="Top" 
-                           Name="InfoLabel2">
-                    </Label>
-                    <Label Grid.Row="0" 
-                           Grid.Column="2" 
-                           Visibility="Visible"
-                           FontSize="11"
-                           HorizontalAlignment="Left" 
-                           VerticalAlignment="Top" 
-                           Name="InfoLabel3">
-                    </Label>
                 </Grid>
-                
-
             </Grid>
         </DockPanel>
     </Grid>
